@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace ConsoleBackupper
 {
+
+    #region Base
+
     public abstract class Command
     {
         protected virtual byte ExpectedArgs => 0;
@@ -44,6 +47,25 @@ namespace ConsoleBackupper
         #endregion
 
         public abstract void Run();
+    }
+
+    #endregion
+
+    // ----------------------------------------------------------------
+
+    #region Commands
+
+    public class QueryCommand : Command
+    {
+        public override void Run()
+        {
+            List<Backup> backups = Configuration.GetBackups();
+            List<string> log = new List<string>(backups.Count);
+
+            backups.ForEach(backup => log.Add(backup));
+
+            Logger.Log(log);
+        }
     }
 
     public class AddCommand : Command
@@ -97,4 +119,7 @@ namespace ConsoleBackupper
             Environment.Exit(0);
         }
     }
+
+    #endregion
+
 }

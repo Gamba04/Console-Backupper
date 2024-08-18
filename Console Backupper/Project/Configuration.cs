@@ -13,8 +13,6 @@ namespace ConsoleBackupper
 
         public static void Add(Backup backup)
         {
-            string line = backup.ToString();
-
             EditFile(Operation);
             Log();
 
@@ -22,10 +20,10 @@ namespace ConsoleBackupper
             {
                 if (content != "") content += "\n";
 
-                content += line;
+                content += backup;
             }
 
-            void Log() => Logger.Log($"Added '{line}' to configuration.");
+            void Log() => Logger.Log($"Added '{backup}' to configuration.");
         }
 
         public static void Remove(string source)

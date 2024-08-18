@@ -77,6 +77,8 @@ namespace ConsoleBackupper
 
         #region Parsing
 
+        public static implicit operator string(Backup backup) => backup.ToString();
+
         public override string ToString() => source + separator + destination;
 
         public static Backup Parse(string line)

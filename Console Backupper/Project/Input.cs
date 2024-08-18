@@ -40,6 +40,10 @@ namespace ConsoleBackupper
             {
                 switch (name)
                 {
+                    case "query":
+                        command = GetCommand<QueryCommand>();
+                        break;
+
                     case "add":
                         command = GetCommand<AddCommand>();
                         break;
