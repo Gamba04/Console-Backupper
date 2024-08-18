@@ -21,38 +21,54 @@ namespace ConsoleBackupper
 
         public void Execute()
         {
-            Dictionary<string, string> files = new Dictionary<string, string>();
+            Dictionary<string, string> targets = new Dictionary<string, string>();
 
             if (File.Exists(source))
             {
-                string fileName = source.Substring(source.LastIndexOf('\\'));
+                string fileName = GetFileName(source);
 
-                files.Add(source, destination + fileName);
+                targets.Add(source, destination + fileName);
             }
             else if (Directory.Exists(source))
             {
-                string[] sources = Directory.GetFiles(source);
+                List<string> directories = new List<string> { source };
+                directories.AddRange(Directory.GetDirectories(source));
 
-                foreach (string source in sources)
+                foreach (string directory in directories)
                 {
-                    string relativePath = source.Substring(this.source.Length);
-                    string destination = this.destination + relativePath;
+                    string[] files = Directory.GetFiles(directory);
 
-                    files.Add(source, destination);
+                    foreach (string file in files)
+                    {
+                        string relativePath = GetRelativePath(file, source);
+                        string targetPath = destination + relativePath;
+
+                        targets.Add(file, targetPath);
+                    }
                 }
             }
-            else return;
-
-            List<string> log = new List<string>(files.Count);
-
-            foreach (KeyValuePair<string, string> file in files)
+            else
             {
-                File.Copy(file.Key, file.Value, true);
+                Logger.LogError($"Could not perform backup because '{source}' doesn't exist");
 
-                log.Add($"Copied '{file.Key}' to '{file.Value}'");
+                return;
             }
 
-            Logger.Log(log);
+            Logger.Log($"Copied '{source}' into '{destination}'");
+
+            foreach (KeyValuePair<string, string> target in targets)
+            {
+                string directory = GetDirectory(target.Value);
+                Directory.CreateDirectory(directory);
+
+                File.Copy(target.Key, target.Value, true);
+            }
+
+            string GetFileName(string path) => path.Substring(path.LastIndexOf('\\'));
+
+            string GetDirectory(string path) => path.Substring(0, path.LastIndexOf('\\'));
+
+            string GetRelativePath(string fullPath, string root) => fullPath.Substring(root.Length);
         }
 
         #endregion
