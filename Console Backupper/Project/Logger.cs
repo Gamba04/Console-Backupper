@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ConsoleBackupper
 {
@@ -7,15 +8,51 @@ namespace ConsoleBackupper
         private const ConsoleColor infoColor = ConsoleColor.Yellow;
         private const ConsoleColor errorColor = ConsoleColor.Red;
 
-        public static void LogInfo(object message) => Log(message, infoColor);
+        #region Public Methods
 
-        public static void LogError(object message) => Log(message, errorColor);
+        public static void Log(List<string> messages) => Log(messages, infoColor);
 
-        private static void Log(object message, ConsoleColor color)
+        public static void Log(string message) => Log(message, infoColor);
+
+        public static void LogError(List<string> messages) => Log(messages, errorColor);
+
+        public static void LogError(string message) => Log(message, errorColor);
+
+        #endregion
+
+        // ----------------------------------------------------------------
+
+        #region Internal
+
+        private static void Log(List<string> messages, ConsoleColor color)
         {
+            string log = "";
+
+            for (int i = 0; i < messages.Count; i++)
+            {
+                if (i > 0) log += "\n";
+
+                log += messages[i];
+            }
+
+            Log(log, color);
+        }
+
+        private static void Log(string message, ConsoleColor color)
+        {
+            if (message == "")
+            {
+                Console.WriteLine();
+
+                return;
+            }
+
             Console.ForegroundColor = color;
             Console.WriteLine($"\n{message}\n");
             Console.ResetColor();
         }
+
+        #endregion
+
     }
 }

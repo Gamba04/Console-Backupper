@@ -63,7 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Project\BackupInfo.cs" />
+    <Compile Include="Project\Backup.cs" />
     <Compile Include="Project\Commands.cs" />
     <Compile Include="Project\Configuration.cs" />
     <Compile Include="Project\Input.cs" />

@@ -48,13 +48,13 @@ namespace ConsoleBackupper
 
     public class AddCommand : Command
     {
-        private BackupInfo backup;
+        private Backup backup;
 
         protected override byte ExpectedArgs => 2;
 
         protected override void Init(string[] args)
         {
-            backup = new BackupInfo(args[0], args[1]);
+            backup = new Backup(args[0], args[1]);
         }
 
         public override void Run()
@@ -84,7 +84,7 @@ namespace ConsoleBackupper
     {
         public override void Run()
         {
-            List<BackupInfo> backups = Configuration.GetBackups();
+            List<Backup> backups = Configuration.GetBackups();
 
             backups.ForEach(backup => backup.Execute());
         }

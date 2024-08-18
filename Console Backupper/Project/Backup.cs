@@ -4,18 +4,20 @@ using System.IO;
 
 namespace ConsoleBackupper
 {
-    public class BackupInfo
+    public class Backup
     {
         public string source;
         public string destination;
 
         private const string separator = " > ";
 
-        public BackupInfo(string source, string destination)
+        public Backup(string source, string destination)
         {
             this.source = source;
             this.destination = destination;
         }
+
+        #region Execution
 
         public void Execute()
         {
@@ -23,7 +25,9 @@ namespace ConsoleBackupper
 
             if (File.Exists(source))
             {
-                files.Add(source, destination);
+                string fileName = source.Substring(source.LastIndexOf('\\'));
+
+                files.Add(source, destination + fileName);
             }
             else if (Directory.Exists(source))
             {
@@ -31,7 +35,7 @@ namespace ConsoleBackupper
 
                 foreach (string source in sources)
                 {
-                    string relativePath = source.TrimStart(this.source.ToCharArray());
+                    string relativePath = source.Substring(this.source.Length);
                     string destination = this.destination + relativePath;
 
                     files.Add(source, destination);
@@ -39,15 +43,27 @@ namespace ConsoleBackupper
             }
             else return;
 
+            List<string> log = new List<string>(files.Count);
+
             foreach (KeyValuePair<string, string> file in files)
             {
                 File.Copy(file.Key, file.Value, true);
+
+                log.Add($"Copied '{file.Key}' to '{file.Value}'");
             }
+
+            Logger.Log(log);
         }
+
+        #endregion
+
+        // ----------------------------------------------------------------
+
+        #region Parsing
 
         public override string ToString() => source + separator + destination;
 
-        public static BackupInfo Parse(string line)
+        public static Backup Parse(string line)
         {
             int index = line.IndexOf(separator);
 
@@ -58,7 +74,10 @@ namespace ConsoleBackupper
             string source = line.Remove(index);
             string destination = line.Remove(0, index);
 
-            return new BackupInfo(source, destination);
+            return new Backup(source, destination);
         }
+
+        #endregion
+
     }
 }

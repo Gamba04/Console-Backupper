@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace ConsoleBackupper
@@ -12,12 +11,12 @@ namespace ConsoleBackupper
 
         #region Operations
 
-        public static void Add(BackupInfo backup)
+        public static void Add(Backup backup)
         {
             string line = backup.ToString();
 
             EditFile(Operation);
-            Logger.LogInfo($"Added '{line}' to configuration.");
+            Log();
 
             void Operation(ref string content)
             {
@@ -25,6 +24,8 @@ namespace ConsoleBackupper
 
                 content += line;
             }
+
+            void Log() => Logger.Log($"Added '{line}' to configuration.");
         }
 
         public static void Remove(string source)
@@ -32,7 +33,7 @@ namespace ConsoleBackupper
             List<string> removed = new List<string>();
 
             EditFile(Operation);
-            Logger.LogInfo(GetLog());
+            Log();
 
             void Operation(ref string content)
             {
@@ -45,7 +46,7 @@ namespace ConsoleBackupper
 
                 bool MatchSource(string line)
                 {
-                    BackupInfo backup = BackupInfo.Parse(line);
+                    Backup backup = Backup.Parse(line);
 
                     return backup.source == source;
                 }
@@ -56,23 +57,28 @@ namespace ConsoleBackupper
                 }
             }
 
-            string GetLog()
+            void Log()
             {
-                string log = "";
+                List<string> log = new List<string>(removed.Count);
 
-                removed.ForEach(line => log += $"Removed '{line}' from configuration.");
+                log.AddRange(removed.ConvertAll(line => $"Removed '{line}' from configuration."));
 
-                return log;
+                if (log.Count == 0)
+                {
+                    log.Add($"No entries found with source '{source}'");
+                }
+
+                Logger.Log(log);
             }
         }
 
-        public static List<BackupInfo> GetBackups()
+        public static List<Backup> GetBackups()
         {
             string content = ReadFile();
 
             List<string> lines = GetLines(content);
 
-            return lines.ConvertAll(BackupInfo.Parse);
+            return lines.ConvertAll(Backup.Parse);
         }
 
         #endregion
