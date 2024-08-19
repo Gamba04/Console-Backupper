@@ -71,14 +71,17 @@ namespace ConsoleBackupper
 
         public static void RemoveAll()
         {
+            bool isEmpty = false;
+
             EditFile(Operation, Log);
 
-            static void Operation(ref string content)
+            void Operation(ref string content)
             {
+                isEmpty = content == "";
                 content = "";
             }
 
-            static void Log() => Logger.Log("All backup configuration was removed");
+            void Log() => Logger.Log(isEmpty ? "The backup configuration is already empty" : "All backup configuration was removed");
         }
 
         public static List<Backup> GetBackups()

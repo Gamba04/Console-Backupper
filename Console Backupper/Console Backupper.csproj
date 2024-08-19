@@ -64,12 +64,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Project\Backup.cs" />
-    <Compile Include="Project\Commands.cs" />
-    <Compile Include="Project\Configuration.cs" />
-    <Compile Include="Project\Input.cs" />
-    <Compile Include="Project\Logger.cs" />
-    <Compile Include="Project\Program.cs" />
+    <Compile Include="Scripts\Backup.cs" />
+    <Compile Include="Scripts\Commands.cs" />
+    <Compile Include="Scripts\Configuration.cs" />
+    <Compile Include="Scripts\Input.cs" />
+    <Compile Include="Scripts\Logger.cs" />
+    <Compile Include="Scripts\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
