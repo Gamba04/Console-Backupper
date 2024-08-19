@@ -16,6 +16,8 @@ namespace ConsoleBackupper
 
         public static void LogError(List<string> messages) => Log(messages, errorColor);
 
+        public static void LogError(Exception exception) => Log(exception.Message, errorColor);
+
         public static void LogError(string message) => Log(message, errorColor);
 
         #endregion

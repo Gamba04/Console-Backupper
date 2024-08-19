@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace ConsoleBackupper
@@ -13,8 +14,7 @@ namespace ConsoleBackupper
 
         public static void Add(Backup backup)
         {
-            EditFile(Operation);
-            Log();
+            EditFile(Operation, Log);
 
             void Operation(ref string content)
             {
@@ -30,8 +30,7 @@ namespace ConsoleBackupper
         {
             List<string> removed = new List<string>();
 
-            EditFile(Operation);
-            Log();
+            EditFile(Operation, Log);
 
             void Operation(ref string content)
             {
@@ -70,6 +69,18 @@ namespace ConsoleBackupper
             }
         }
 
+        public static void RemoveAll()
+        {
+            EditFile(Operation, Log);
+
+            static void Operation(ref string content)
+            {
+                content = "";
+            }
+
+            static void Log() => Logger.Log("All backup configuration was removed");
+        }
+
         public static List<Backup> GetBackups()
         {
             string content = ReadFile();
@@ -85,13 +96,15 @@ namespace ConsoleBackupper
 
         #region Processing
 
-        private static void EditFile(Operation operation)
+        private static void EditFile(Operation operation, Action log = null)
         {
             string content = ReadFile();
 
             operation?.Invoke(ref content);
 
             File.WriteAllText(path, content);
+
+            log?.Invoke();
         }
 
         private static string ReadFile()

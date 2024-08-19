@@ -102,6 +102,14 @@ namespace ConsoleBackupper
         }
     }
 
+    public class RemoveAllCommand : Command
+    {
+        public override void Run()
+        {
+            Configuration.RemoveAll();
+        }
+    }
+
     public class StartCommand : Command
     {
         public override void Run()
@@ -109,6 +117,14 @@ namespace ConsoleBackupper
             List<Backup> backups = Configuration.GetBackups();
 
             backups.ForEach(backup => backup.Execute());
+        }
+    }
+
+    public class ClearCommand : Command
+    {
+        public override void Run()
+        {
+            Console.Clear(); 
         }
     }
 

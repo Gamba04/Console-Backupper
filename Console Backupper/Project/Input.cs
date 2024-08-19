@@ -5,6 +5,9 @@ namespace ConsoleBackupper
 {
     public static class Input
     {
+        private const string prompt = "> ";
+
+        private static int startPos;
 
         #region Init
 
@@ -18,6 +21,9 @@ namespace ConsoleBackupper
 
         private static void ReadInput()
         {
+            startPos = Console.CursorTop;
+
+            Console.Write(prompt);
             string input = Console.ReadLine();
 
             if (TryGetCommand(input, out Command command))
@@ -38,33 +44,26 @@ namespace ConsoleBackupper
 
             if (TryParseCommand(input, out string name, out string[] args))
             {
-                switch (name)
+                try
                 {
-                    case "query":
-                        command = GetCommand<QueryCommand>();
-                        break;
-
-                    case "add":
-                        command = GetCommand<AddCommand>();
-                        break;
-
-                    case "remove":
-                        command = GetCommand<RemoveCommand>();
-                        break;
-
-                    case "start":
-                        command = GetCommand<StartCommand>();
-                        break;
-
-                    case "exit":
-                        command = GetCommand<ExitCommand>();
-                        break;
-
-                    default:
-                        Logger.LogError($"The command '{name}' is not a valid command.");
-                        break;
+                    command = name switch
+                    {
+                        "query" => GetCommand<QueryCommand>(),
+                        "add" => GetCommand<AddCommand>(),
+                        "remove" => GetCommand<RemoveCommand>(),
+                        "removeall" => GetCommand<RemoveAllCommand>(),
+                        "start" => GetCommand<StartCommand>(),
+                        "cls" => GetCommand<ClearCommand>(),
+                        "exit" => GetCommand<ExitCommand>(),
+                        _ => throw new FormatException($"The command '{name}' is not a valid command.")
+                    };
+                }
+                catch (FormatException e)
+                {
+                    Logger.LogError(e);
                 }
             }
+            else Console.CursorTop = startPos;
 
             return command != null;
 
