@@ -59,10 +59,10 @@ namespace ConsoleBackupper
     {
         public override void Run()
         {
-            List<Backup> backups = Configuration.GetBackups();
-            List<string> log = new List<string>(backups.Count);
+            List<Location> locations = Configuration.GetLocations();
+            List<string> log = new List<string>(locations.Count);
 
-            backups.ForEach(backup => log.Add(backup));
+            locations.ForEach(backup => log.Add(backup));
 
             Logger.Log(log);
         }
@@ -70,18 +70,18 @@ namespace ConsoleBackupper
 
     public class AddCommand : Command
     {
-        private Backup backup;
+        private Location location;
 
-        protected override byte ExpectedArgs => 2;
+        protected override byte ExpectedArgs => 3;
 
         protected override void Init(string[] args)
         {
-            backup = new Backup(args[0], args[1]);
+            location = new Location(args[0], args[1], args[2]);
         }
 
         public override void Run()
         {
-            Configuration.Add(backup);
+            Configuration.Add(location);
         }
     }
 
@@ -114,9 +114,9 @@ namespace ConsoleBackupper
     {
         public override void Run()
         {
-            List<Backup> backups = Configuration.GetBackups();
+            List<Location> locations = Configuration.GetLocations();
 
-            backups.ForEach(backup => backup.Execute());
+            locations.ForEach(backup => backup.Execute());
         }
     }
 

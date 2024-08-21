@@ -12,7 +12,7 @@ namespace ConsoleBackupper
 
         #region Operations
 
-        public static void Add(Backup backup)
+        public static void Add(Location location)
         {
             EditFile(Operation, Log);
 
@@ -20,10 +20,10 @@ namespace ConsoleBackupper
             {
                 if (content != "") content += "\n";
 
-                content += backup;
+                content += location;
             }
 
-            void Log() => Logger.Log($"Added '{backup}' to configuration.");
+            void Log() => Logger.Log($"Added '{location}' to configuration.");
         }
 
         public static void Remove(string source)
@@ -43,9 +43,9 @@ namespace ConsoleBackupper
 
                 bool MatchSource(string line)
                 {
-                    Backup backup = Backup.Parse(line);
+                    Location location = Location.Parse(line);
 
-                    return backup.source == source;
+                    return location.source == source;
                 }
 
                 void RemoveLine(string line)
@@ -84,13 +84,13 @@ namespace ConsoleBackupper
             void Log() => Logger.Log(isEmpty ? "The backup configuration is already empty" : "All backup configuration was removed");
         }
 
-        public static List<Backup> GetBackups()
+        public static List<Location> GetLocations()
         {
             string content = ReadFile();
 
             List<string> lines = GetLines(content);
 
-            return lines.ConvertAll(Backup.Parse);
+            return lines.ConvertAll(Location.Parse);
         }
 
         #endregion

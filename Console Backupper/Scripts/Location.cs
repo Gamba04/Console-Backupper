@@ -3,15 +3,18 @@ using System.IO;
 
 namespace ConsoleBackupper
 {
-    public class Backup
+    public class Location
     {
+        public string name;
         public string source;
         public string destination;
 
-        private const string separator = " > ";
+        private const string nameSeparator = ": ";
+        private const string sourceSeparator = " > ";
 
-        public Backup(string source, string destination)
+        public Location(string name, string source, string destination)
         {
+            this.name = name;
             this.source = source;
             this.destination = destination;
         }
@@ -76,22 +79,29 @@ namespace ConsoleBackupper
 
         #region Parsing
 
-        public static implicit operator string(Backup backup) => backup.ToString();
+        public static implicit operator string(Location backup) => backup.ToString();
 
-        public override string ToString() => source + separator + destination;
+        public override string ToString() => name + nameSeparator + source + sourceSeparator + destination;
 
-        public static Backup Parse(string line)
+        public static Location Parse(string line)
         {
-            int index = line.IndexOf(separator);
+            GetSeparatorIndex(nameSeparator, out int nameSeparatorIndex);
+            GetSeparatorIndex(sourceSeparator, out int sourceSeparatorIndex);
 
-            if (index == -1) return null;
+            if (nameSeparatorIndex == -1 || sourceSeparatorIndex == -1) return null;
 
-            line = line.Remove(index, separator.Length);
+            string name = line.Remove(nameSeparatorIndex);
+            string source = line.Substring(nameSeparatorIndex, sourceSeparatorIndex);
+            string destination = line.Substring(sourceSeparatorIndex);
 
-            string source = line.Remove(index);
-            string destination = line.Remove(0, index);
+            return new Location(name, source, destination);
 
-            return new Backup(source, destination);
+            void GetSeparatorIndex(string separator, out int separatorIndex)
+            {
+                separatorIndex = line.IndexOf(separator);
+
+                line = line.Remove(separatorIndex, separator.Length);
+            }
         }
 
         #endregion

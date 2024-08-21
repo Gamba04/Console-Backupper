@@ -70,7 +70,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Scripts\Backup.cs" />
+    <Compile Include="Scripts\Location.cs" />
     <Compile Include="Scripts\Commands.cs" />
     <Compile Include="Scripts\Configuration.cs" />
     <Compile Include="Scripts\Input.cs" />
