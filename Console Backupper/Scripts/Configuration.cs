@@ -26,7 +26,7 @@ namespace ConsoleBackupper
             void Log() => Logger.Log($"Added '{location}' to configuration.");
         }
 
-        public static void Remove(string source)
+        public static void Remove(string name)
         {
             List<string> removed = new List<string>();
 
@@ -45,7 +45,7 @@ namespace ConsoleBackupper
                 {
                     Location location = Location.Parse(line);
 
-                    return location.source == source;
+                    return location.name == name;
                 }
 
                 void RemoveLine(string line)
@@ -62,7 +62,7 @@ namespace ConsoleBackupper
 
                 if (log.Count == 0)
                 {
-                    log.Add($"No entries found with source '{source}'");
+                    log.Add($"No entries found with source '{name}'");
                 }
 
                 Logger.Log(log);

@@ -91,7 +91,7 @@ namespace ConsoleBackupper
             if (nameSeparatorIndex == -1 || sourceSeparatorIndex == -1) return null;
 
             string name = line.Remove(nameSeparatorIndex);
-            string source = line.Substring(nameSeparatorIndex, sourceSeparatorIndex);
+            string source = line.Substring(nameSeparatorIndex, sourceSeparatorIndex - nameSeparatorIndex);
             string destination = line.Substring(sourceSeparatorIndex);
 
             return new Location(name, source, destination);

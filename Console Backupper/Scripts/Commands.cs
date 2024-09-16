@@ -62,7 +62,7 @@ namespace ConsoleBackupper
             List<Location> locations = Configuration.GetLocations();
             List<string> log = new List<string>(locations.Count);
 
-            locations.ForEach(backup => log.Add(backup));
+            locations.ForEach(location => log.Add(location));
 
             Logger.Log(log);
         }
@@ -87,18 +87,18 @@ namespace ConsoleBackupper
 
     public class RemoveCommand : Command
     {
-        private string source;
+        private string name;
 
         protected override byte ExpectedArgs => 1;
 
         protected override void Init(string[] args)
         {
-            source = args[0];
+            name = args[0];
         }
 
         public override void Run()
         {
-            Configuration.Remove(source);
+            Configuration.Remove(name);
         }
     }
 
