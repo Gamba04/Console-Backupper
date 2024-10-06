@@ -84,6 +84,13 @@ namespace ConsoleBackupper
             void Log() => Logger.Log(isEmpty ? "The backup configuration is already empty" : "All backup configuration was removed");
         }
 
+        public static Location GetLocation(string name)
+        {
+            List<Location> locations = GetLocations();
+
+            return locations.Find(location => location.name == name);
+        }
+
         public static List<Location> GetLocations()
         {
             string content = ReadFile();

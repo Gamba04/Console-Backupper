@@ -10,41 +10,25 @@ namespace ConsoleBackupper
     {
         protected virtual byte ExpectedArgs => 0;
 
-        #region Initialization
-
-        /// <summary> Validates a command and returns it if it's positive. </summary>
-        public static Command GetCommand<C>(string[] args)
-            where C : Command, new()
+        public virtual bool ValidateArgs(string[] args)
         {
-            C command = new C();
+            bool valid = true;
 
-            if (command.ValidateArgs(args))
+            valid &= Validate(args.Length == ExpectedArgs, $"Expected {ExpectedArgs} arguments");
+
+            return valid;
+
+            static bool Validate(bool condition, string error = null)
             {
-                command.Init(args);
+                if (condition) return true;
 
-                return command;
-            }
-
-            return null;
-        }
-
-        protected virtual bool ValidateArgs(string[] args) => CheckExpectedArgs(args);
-
-        protected bool CheckExpectedArgs(string[] args)
-        {
-            if (args.Length != ExpectedArgs)
-            {
-                Logger.LogError($"Expected {ExpectedArgs} arguments");
+                if (error != null) Logger.LogError(error);
 
                 return false;
             }
-
-            return true;
         }
 
-        protected virtual void Init(string[] args) { }
-
-        #endregion
+        public virtual void Init(string[] args) { }
 
         public abstract void Run();
     }
@@ -74,7 +58,7 @@ namespace ConsoleBackupper
 
         protected override byte ExpectedArgs => 3;
 
-        protected override void Init(string[] args)
+        public override void Init(string[] args)
         {
             location = new Location(args[0], args[1], args[2]);
         }
@@ -91,7 +75,7 @@ namespace ConsoleBackupper
 
         protected override byte ExpectedArgs => 1;
 
-        protected override void Init(string[] args)
+        public override void Init(string[] args)
         {
             name = args[0];
         }
@@ -110,13 +94,32 @@ namespace ConsoleBackupper
         }
     }
 
-    public class StartCommand : Command
+    public class BackupCommand : Command
+    {
+        private string name;
+
+        protected override byte ExpectedArgs => 1;
+
+        public override void Init(string[] args)
+        {
+            name = args[0];
+        }
+
+        public override void Run()
+        {
+            Location location = Configuration.GetLocation(name);
+
+            location.Backup();
+        }
+    }
+
+    public class BackupAllCommand : Command
     {
         public override void Run()
         {
             List<Location> locations = Configuration.GetLocations();
 
-            locations.ForEach(backup => backup.Execute());
+            locations.ForEach(location => location.Backup());
         }
     }
 
@@ -125,6 +128,16 @@ namespace ConsoleBackupper
         public override void Run()
         {
             Console.Clear(); 
+        }
+    }
+
+    public class HelpCommand : Command
+    {
+        public override void Run()
+        {
+            List<string> commands = new List<string>(Input.commandsLibrary.Keys);
+
+            Logger.Log(commands);
         }
     }
 

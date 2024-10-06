@@ -9,6 +9,19 @@ namespace ConsoleBackupper
 
         private static int startPos;
 
+        public static readonly Dictionary<string, Command> commandsLibrary = new Dictionary<string, Command>()
+        {
+            ["query"] = new QueryCommand(),
+            ["add"] = new AddCommand(),
+            ["remove"] = new RemoveCommand(),
+            ["remove-all"] = new RemoveAllCommand(),
+            ["backup"] = new BackupCommand(),
+            ["backup-all"] = new BackupAllCommand(),
+            ["cls"] = new ClearCommand(),
+            ["help"] = new HelpCommand(),
+            ["exit"] = new ExitCommand(),
+        };
+
         #region Init
 
         public static void Init()
@@ -44,34 +57,20 @@ namespace ConsoleBackupper
 
             if (TryParseCommand(input, out string name, out string[] args))
             {
-                try
+                if (commandsLibrary.TryGetValue(name, out command))
                 {
-                    command = name switch
+                    if (command.ValidateArgs(args))
                     {
-                        "query" => GetCommand<QueryCommand>(),
-                        "add" => GetCommand<AddCommand>(),
-                        "remove" => GetCommand<RemoveCommand>(),
-                        "removeall" => GetCommand<RemoveAllCommand>(),
-                        "start" => GetCommand<StartCommand>(),
-                        "cls" => GetCommand<ClearCommand>(),
-                        "exit" => GetCommand<ExitCommand>(),
-                        _ => throw new FormatException($"The command '{name}' is not a valid command.")
-                    };
+                        command.Init(args);
+
+                        return true;
+                    }
                 }
-                catch (FormatException e)
-                {
-                    Logger.LogError(e);
-                }
+                else Logger.LogError($"The command '{name}' is not a valid command");
             }
             else Console.CursorTop = startPos;
 
-            return command != null;
-
-            Command GetCommand<C>()
-                where C : Command, new()
-            {
-                return Command.GetCommand<C>(args);
-            }
+            return false;
         }
 
         private static bool TryParseCommand(string input, out string name, out string[] args)

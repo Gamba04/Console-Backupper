@@ -21,7 +21,7 @@ namespace ConsoleBackupper
 
         #region Execution
 
-        public void Execute()
+        public void Backup()
         {
             Dictionary<string, string> targets = new Dictionary<string, string>();
 
