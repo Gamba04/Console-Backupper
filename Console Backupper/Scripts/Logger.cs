@@ -20,6 +20,8 @@ namespace ConsoleBackupper
 
         public static void LogError(string message) => Log(message, errorColor);
 
+        public static void Space() => Console.WriteLine();
+
         #endregion
 
         // ----------------------------------------------------------------
@@ -42,15 +44,10 @@ namespace ConsoleBackupper
 
         private static void Log(string message, ConsoleColor color)
         {
-            if (message == "")
-            {
-                Console.WriteLine();
-
-                return;
-            }
+            if (message == "") return;
 
             Console.ForegroundColor = color;
-            Console.WriteLine($"\n{message}\n");
+            Console.WriteLine($"\n{message}");
             Console.ResetColor();
         }
 

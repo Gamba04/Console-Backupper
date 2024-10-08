@@ -8,7 +8,7 @@ namespace ConsoleBackupper
         private const string path = "config.txt";
         private const string lineSeparator = "\n";
 
-        private delegate void Operation(List<Location> locations, out string log);
+        private delegate void Operation(List<Location> locations);
 
         #region Operations
 
@@ -16,11 +16,18 @@ namespace ConsoleBackupper
         {
             EditFile(Operation);
 
-            void Operation(List<Location> locations, out string log)
+            void Operation(List<Location> locations)
             {
+                if (locations.Exists(l => l.name == location.name))
+                {
+                    Logger.LogError($"'{location.name}' already exists");
+
+                    return;
+                }
+
                 locations.Add(location);
 
-                log = $"Added '{location}' to configuration.";
+                Logger.Log($"Added '{location}' to configuration");
             }
         }
 
@@ -28,11 +35,11 @@ namespace ConsoleBackupper
         {
             EditFile(Operation);
 
-            void Operation(List<Location> locations, out string log)
+            void Operation(List<Location> locations)
             {
                 int removed = locations.RemoveAll(location => location.name == name);
 
-                log = removed > 0 ? $"Removed location '{name}' from configuration" : $"No locations found with name '{name}'";
+                Logger.Log(removed > 0 ? $"Removed location '{name}' from configuration" : $"No locations found with name '{name}'");
             }
         }
 
@@ -40,13 +47,13 @@ namespace ConsoleBackupper
         {
             EditFile(Operation);
 
-            static void Operation(List<Location> locations, out string log)
+            static void Operation(List<Location> locations)
             {
                 bool isEmpty = locations.Count == 0;
 
                 if (!isEmpty) locations.Clear();
 
-                log = isEmpty ? "The backup configuration is already empty" : "All backup configuration was removed";
+                Logger.Log(isEmpty ? "The backup configuration is already empty" : "All backup configuration has been removed");
             }
         }
 
@@ -83,11 +90,9 @@ namespace ConsoleBackupper
         {
             List<Location> locations = GetLocations();
 
-            operation(locations, out string log);
+            operation(locations);
 
             string content = string.Join(lineSeparator, locations);
-
-            Logger.Log(log);
 
             WriteFile(content);
         }

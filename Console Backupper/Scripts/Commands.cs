@@ -111,16 +111,29 @@ namespace ConsoleBackupper
 
         protected override int ExpectedArgs => 1;
 
+        protected override bool ValidateExpectedArgs(int args, int expected) => args <= expected;
+
         public override void Init(string[] args)
         {
+            if (args.Length == 0) return;
+
             name = args[0];
         }
 
         public override void Run()
         {
-            Location location = Configuration.GetLocation(name);
+            if (name != null)
+            {
+                Location location = Configuration.GetLocation(name);
 
-            location.Backup();
+                location.Backup();
+            }
+            else
+            {
+                List<Location> locations = Configuration.GetLocations();
+
+                locations.ForEach(location => location.Backup());
+            }
         }
     }
 

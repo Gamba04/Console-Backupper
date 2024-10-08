@@ -14,9 +14,8 @@ namespace ConsoleBackupper
             ["query"] = new QueryCommand(),
             ["add"] = new AddCommand(),
             ["remove"] = new RemoveCommand(),
-            ["remove-all"] = new RemoveAllCommand(),
+            ["reset"] = new RemoveAllCommand(),
             ["backup"] = new BackupCommand(),
-            ["backup-all"] = new BackupAllCommand(),
             ["cls"] = new ClearCommand(),
             ["help"] = new HelpCommand(),
             ["exit"] = new ExitCommand(),
@@ -42,6 +41,8 @@ namespace ConsoleBackupper
             if (TryGetCommand(input, out Command command))
             {
                 command.Run();
+
+                Logger.Space();
             }
         }
 

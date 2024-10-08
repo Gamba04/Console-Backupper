@@ -26,6 +26,9 @@ namespace ConsoleBackupper
         {
             Dictionary<string, string> instructions = new Dictionary<string, string>();
 
+            List<string> log = new List<string>(instructions.Count);
+            List<string> error = new List<string>(instructions.Count);
+
             sources.ForEach(Register);
 
             foreach (KeyValuePair<string, string> instruction in instructions)
@@ -35,6 +38,9 @@ namespace ConsoleBackupper
 
                 File.Copy(instruction.Key, instruction.Value, true);
             }
+
+            Logger.Log(log);
+            Logger.LogError(error);
 
             void Register(string source)
             {
@@ -64,12 +70,12 @@ namespace ConsoleBackupper
                 }
                 else
                 {
-                    Logger.LogError($"Could not perform backup because '{source}' doesn't exist");
+                    error.Add($"Could not perform backup because '{source}' doesn't exist");
 
                     return;
                 }
 
-                Logger.Log($"Copied '{source}' into '{destination}'");
+                log.Add($"Copied '{source}' into '{destination}'");
             }
 
             string GetFileName(string path) => path.Substring(path.LastIndexOf('\\'));
@@ -92,7 +98,7 @@ namespace ConsoleBackupper
         public static Location Parse(string line)
         {
             string name = ReadNext(nameSeparator);
-            List<string> sources = ReadNext(destinationSeparator).Split(destinationSeparator);
+            List<string> sources = ReadNext(destinationSeparator).Split(sourcesSeparator);
             string destination = line;
 
             return new Location(name, sources, destination);
