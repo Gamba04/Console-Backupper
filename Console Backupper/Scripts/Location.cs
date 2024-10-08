@@ -52,12 +52,14 @@ namespace ConsoleBackupper
         {
             if (File.Exists(source))
             {
-                string fileName = GetFileName(source);
+                string fileName = GetName(source);
 
                 instructions.Add(source, destination + fileName);
             }
             else if (Directory.Exists(source))
             {
+                string directoryName = GetName(source);
+
                 List<string> directories = new List<string> { source };
                 directories.AddRange(Directory.GetDirectories(source));
 
@@ -68,7 +70,7 @@ namespace ConsoleBackupper
                     foreach (string file in files)
                     {
                         string relativePath = GetRelativePath(file, source);
-                        string targetPath = destination + relativePath;
+                        string targetPath = @$"{destination}\{directoryName}\{relativePath}";
 
                         instructions.Add(file, targetPath);
                     }
@@ -90,7 +92,7 @@ namespace ConsoleBackupper
             }
         }
 
-        private static string GetFileName(string path) => path.Substring(path.LastIndexOf('\\'));
+        private static string GetName(string path) => path.Substring(path.LastIndexOf('\\'));
 
         private static string GetDirectory(string path) => path.Substring(0, path.LastIndexOf('\\'));
 
