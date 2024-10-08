@@ -38,11 +38,11 @@ namespace ConsoleBackupper
             Console.Write(prompt);
             string input = Console.ReadLine();
 
+            Logger.Space();
+
             if (TryGetCommand(input, out Command command))
             {
                 command.Run();
-
-                Logger.Space();
             }
         }
 

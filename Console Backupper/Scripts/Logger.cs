@@ -47,7 +47,7 @@ namespace ConsoleBackupper
             if (message == "") return;
 
             Console.ForegroundColor = color;
-            Console.WriteLine($"\n{message}");
+            Console.WriteLine($"{message}\n");
             Console.ResetColor();
         }
 

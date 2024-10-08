@@ -126,6 +126,13 @@ namespace ConsoleBackupper
             {
                 Location location = Configuration.GetLocation(name);
 
+                if (location == null)
+                {
+                    Logger.LogError($"The location '{name}' does not exist");
+
+                    return;
+                }
+
                 location.Backup();
             }
             else
