@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace ConsoleBackupper
@@ -26,11 +27,60 @@ namespace ConsoleBackupper
         {
             Dictionary<string, string> instructions = new Dictionary<string, string>();
 
-            List<string> log = new List<string>(instructions.Count);
-            List<string> error = new List<string>(instructions.Count);
+            List<string> log = new List<string>();
+            List<string> error = new List<string>();
 
             sources.ForEach(Register);
+            Execute(instructions);
 
+            Logger.Log(log);
+            Logger.LogError(error);
+
+            void Register(string source)
+            {
+                string fullSource = Environment.ExpandEnvironmentVariables(source);
+                string fullDestination = Environment.ExpandEnvironmentVariables(destination);
+
+                bool success = this.Register(fullSource, fullDestination, instructions);
+
+                if (success) log.Add($"Copied '{source}' into '{destination}'");
+                else error.Add($"Could not perform backup because '{source}' doesn't exist");
+            }
+        }
+
+        private bool Register(string source, string destination, Dictionary<string, string> instructions)
+        {
+            if (File.Exists(source))
+            {
+                string fileName = GetFileName(source);
+
+                instructions.Add(source, destination + fileName);
+            }
+            else if (Directory.Exists(source))
+            {
+                List<string> directories = new List<string> { source };
+                directories.AddRange(Directory.GetDirectories(source));
+
+                foreach (string directory in directories)
+                {
+                    string[] files = Directory.GetFiles(directory);
+
+                    foreach (string file in files)
+                    {
+                        string relativePath = GetRelativePath(file, source);
+                        string targetPath = destination + relativePath;
+
+                        instructions.Add(file, targetPath);
+                    }
+                }
+            }
+            else return false;
+
+            return true;
+        }
+
+        private void Execute(Dictionary<string, string> instructions)
+        {
             foreach (KeyValuePair<string, string> instruction in instructions)
             {
                 string directory = GetDirectory(instruction.Value);
@@ -38,52 +88,13 @@ namespace ConsoleBackupper
 
                 File.Copy(instruction.Key, instruction.Value, true);
             }
-
-            Logger.Log(log);
-            Logger.LogError(error);
-
-            void Register(string source)
-            {
-                if (File.Exists(source))
-                {
-                    string fileName = GetFileName(source);
-
-                    instructions.Add(source, destination + fileName);
-                }
-                else if (Directory.Exists(source))
-                {
-                    List<string> directories = new List<string> { source };
-                    directories.AddRange(Directory.GetDirectories(source));
-
-                    foreach (string directory in directories)
-                    {
-                        string[] files = Directory.GetFiles(directory);
-
-                        foreach (string file in files)
-                        {
-                            string relativePath = GetRelativePath(file, source);
-                            string targetPath = destination + relativePath;
-
-                            instructions.Add(file, targetPath);
-                        }
-                    }
-                }
-                else
-                {
-                    error.Add($"Could not perform backup because '{source}' doesn't exist");
-
-                    return;
-                }
-
-                log.Add($"Copied '{source}' into '{destination}'");
-            }
-
-            string GetFileName(string path) => path.Substring(path.LastIndexOf('\\'));
-
-            string GetDirectory(string path) => path.Substring(0, path.LastIndexOf('\\'));
-
-            string GetRelativePath(string fullPath, string root) => fullPath.Substring(root.Length);
         }
+
+        private static string GetFileName(string path) => path.Substring(path.LastIndexOf('\\'));
+
+        private static string GetDirectory(string path) => path.Substring(0, path.LastIndexOf('\\'));
+
+        private static string GetRelativePath(string fullPath, string root) => fullPath.Substring(root.Length);
 
         #endregion
 

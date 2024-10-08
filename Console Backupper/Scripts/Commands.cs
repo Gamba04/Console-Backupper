@@ -97,7 +97,7 @@ namespace ConsoleBackupper
         }
     }
 
-    public class RemoveAllCommand : Command
+    public class ResetCommand : Command
     {
         public override void Run()
         {
@@ -126,31 +126,15 @@ namespace ConsoleBackupper
             {
                 Location location = Configuration.GetLocation(name);
 
-                if (location == null)
-                {
-                    Logger.LogError($"The location '{name}' does not exist");
-
-                    return;
-                }
-
-                location.Backup();
+                location?.Backup();
             }
             else
             {
                 List<Location> locations = Configuration.GetLocations();
 
-                locations.ForEach(location => location.Backup());
+                if (locations.Count == 0) Logger.Log("There are no locations to backup");
+                else locations.ForEach(location => location.Backup());
             }
-        }
-    }
-
-    public class BackupAllCommand : Command
-    {
-        public override void Run()
-        {
-            List<Location> locations = Configuration.GetLocations();
-
-            locations.ForEach(location => location.Backup());
         }
     }
 

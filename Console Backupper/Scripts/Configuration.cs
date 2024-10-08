@@ -37,9 +37,10 @@ namespace ConsoleBackupper
 
             void Operation(List<Location> locations)
             {
-                int removed = locations.RemoveAll(location => location.name == name);
+                bool removed = locations.Remove(locations.Find(location => location.name == name));
 
-                Logger.Log(removed > 0 ? $"Removed location '{name}' from configuration" : $"No locations found with name '{name}'");
+                if (removed) Logger.Log($"Removed location '{name}' from configuration");
+                else Logger.LogError($"The location '{name}' does not exist");
             }
         }
 
@@ -67,7 +68,11 @@ namespace ConsoleBackupper
         {
             List<Location> locations = GetLocations();
 
-            return locations.Find(location => location.name == name);
+            Location location = locations.Find(location => location.name == name);
+
+            if (location == null) Logger.LogError($"The location '{name}' does not exist");
+
+            return location;
         }
 
         public static List<Location> GetLocations()

@@ -9,16 +9,16 @@ namespace ConsoleBackupper
 
         private static int startPos;
 
-        public static readonly Dictionary<string, Command> commandsLibrary = new Dictionary<string, Command>()
+        public static readonly Dictionary<string, Type> commandsLibrary = new Dictionary<string, Type>()
         {
-            ["query"] = new QueryCommand(),
-            ["add"] = new AddCommand(),
-            ["remove"] = new RemoveCommand(),
-            ["reset"] = new RemoveAllCommand(),
-            ["backup"] = new BackupCommand(),
-            ["cls"] = new ClearCommand(),
-            ["help"] = new HelpCommand(),
-            ["exit"] = new ExitCommand(),
+            ["query"]  = typeof(QueryCommand),
+            ["add"]    = typeof(AddCommand),
+            ["remove"] = typeof(RemoveCommand),
+            ["reset"]  = typeof(ResetCommand),
+            ["backup"] = typeof(BackupCommand),
+            ["cls"]    = typeof(ClearCommand),
+            ["help"]   = typeof(HelpCommand),
+            ["exit"]   = typeof(ExitCommand),
         };
 
         #region Init
@@ -58,8 +58,10 @@ namespace ConsoleBackupper
 
             if (TryParseCommand(input, out string name, out string[] args))
             {
-                if (commandsLibrary.TryGetValue(name, out command))
+                if (commandsLibrary.TryGetValue(name, out Type type))
                 {
+                    command = (Command)Activator.CreateInstance(type);
+
                     if (command.ValidateArgs(args))
                     {
                         command.Init(args);
@@ -102,7 +104,7 @@ namespace ConsoleBackupper
 
                     if (i < input.Length - 1) continue;
                 }
-                
+
                 if (buffer.Length > 0)
                 {
                     elements.Add(buffer);
