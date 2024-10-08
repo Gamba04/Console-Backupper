@@ -46,11 +46,19 @@ namespace ConsoleBackupper
         public override void Run()
         {
             List<Location> locations = Configuration.GetLocations();
-            List<string> log = new List<string>(locations.Count);
 
-            locations.ForEach(location => log.Add(location));
+            if (locations.Count == 0)
+            {
+                Logger.Log("There are no locations to query");
+            }
+            else
+            {
+                List<string> log = new List<string>(locations.Count);
 
-            Logger.Log(log);
+                locations.ForEach(location => log.Add(location));
+
+                Logger.Log(log);
+            }
         }
     }
 
