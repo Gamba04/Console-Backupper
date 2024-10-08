@@ -27,7 +27,7 @@ namespace ConsoleBackupper
 
                 locations.Add(location);
 
-                Logger.Log($"Added '{location}' to configuration");
+                Logger.Log($"Added '{location.name}' to configuration");
             }
         }
 
