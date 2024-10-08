@@ -8,13 +8,13 @@ namespace ConsoleBackupper
 
     public abstract class Command
     {
-        protected virtual byte ExpectedArgs => 0;
+        protected virtual int ExpectedArgs => 0;
 
         public virtual bool ValidateArgs(string[] args)
         {
             bool valid = true;
 
-            valid &= Validate(args.Length == ExpectedArgs, $"Expected {ExpectedArgs} arguments");
+            valid &= Validate(ValidateExpectedArgs(args.Length, ExpectedArgs), "Did not match expected arguments");
 
             return valid;
 
@@ -27,6 +27,8 @@ namespace ConsoleBackupper
                 return false;
             }
         }
+
+        protected virtual bool ValidateExpectedArgs(int args, int expected) => args == expected;
 
         public virtual void Init(string[] args) { }
 
@@ -56,11 +58,20 @@ namespace ConsoleBackupper
     {
         private Location location;
 
-        protected override byte ExpectedArgs => 3;
+        protected override int ExpectedArgs => 3;
+
+        protected override bool ValidateExpectedArgs(int amount, int expected) => amount >= expected;
 
         public override void Init(string[] args)
         {
-            location = new Location(args[0], args[1], args[2]);
+            int amount = args.Length;
+
+            string name = args[0];
+            List<string> sources = new List<string>(args).GetRange(1, amount - 2);
+
+            string destination = args[amount - 1];
+
+            location = new Location(name, sources, destination);
         }
 
         public override void Run()
@@ -73,7 +84,7 @@ namespace ConsoleBackupper
     {
         private string name;
 
-        protected override byte ExpectedArgs => 1;
+        protected override int ExpectedArgs => 1;
 
         public override void Init(string[] args)
         {
@@ -98,7 +109,7 @@ namespace ConsoleBackupper
     {
         private string name;
 
-        protected override byte ExpectedArgs => 1;
+        protected override int ExpectedArgs => 1;
 
         public override void Init(string[] args)
         {

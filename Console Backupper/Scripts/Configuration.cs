@@ -6,8 +6,9 @@ namespace ConsoleBackupper
     public static class Configuration
     {
         private const string path = "config.txt";
+        private const string lineSeparator = "\n";
 
-        private delegate void Operation(List<Location> locations);
+        private delegate void Operation(List<Location> locations, out string log);
 
         #region Operations
 
@@ -15,11 +16,11 @@ namespace ConsoleBackupper
         {
             EditFile(Operation);
 
-            Logger.Log($"Added '{location}' to configuration.");
-
-            void Operation(List<Location> locations)
+            void Operation(List<Location> locations, out string log)
             {
                 locations.Add(location);
+
+                log = $"Added '{location}' to configuration.";
             }
         }
 
@@ -27,11 +28,11 @@ namespace ConsoleBackupper
         {
             EditFile(Operation);
 
-            void Operation(List<Location> locations)
+            void Operation(List<Location> locations, out string log)
             {
                 int removed = locations.RemoveAll(location => location.name == name);
 
-                Logger.Log(removed > 0 ? $"Removed location '{name}' from configuration" : $"No locations found with name '{name}'");
+                log = removed > 0 ? $"Removed location '{name}' from configuration" : $"No locations found with name '{name}'";
             }
         }
 
@@ -39,13 +40,13 @@ namespace ConsoleBackupper
         {
             EditFile(Operation);
 
-            static void Operation(List<Location> locations)
+            static void Operation(List<Location> locations, out string log)
             {
                 bool isEmpty = locations.Count == 0;
 
                 if (!isEmpty) locations.Clear();
 
-                Logger.Log(isEmpty ? "The backup configuration is already empty" : "All backup configuration was removed");
+                log = isEmpty ? "The backup configuration is already empty" : "All backup configuration was removed";
             }
         }
 
@@ -66,7 +67,8 @@ namespace ConsoleBackupper
         {
             string content = ReadFile();
 
-            List<string> lines = new List<string>(content.Split('\n'));
+            List<string> lines = content.Split(lineSeparator);
+            lines.RemoveAll(line => line == "");
 
             return lines.ConvertAll(Location.Parse);
         }
@@ -81,9 +83,11 @@ namespace ConsoleBackupper
         {
             List<Location> locations = GetLocations();
 
-            operation?.Invoke(locations);
+            operation(locations, out string log);
 
-            string content = string.Join("\n", locations);
+            string content = string.Join(lineSeparator, locations);
+
+            Logger.Log(log);
 
             WriteFile(content);
         }

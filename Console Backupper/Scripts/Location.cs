@@ -6,16 +6,17 @@ namespace ConsoleBackupper
     public class Location
     {
         public string name;
-        public string source;
+        public List<string> sources;
         public string destination;
 
         private const string nameSeparator = ": ";
-        private const string sourceSeparator = " > ";
+        private const string sourcesSeparator = ", ";
+        private const string destinationSeparator = " > ";
 
-        public Location(string name, string source, string destination)
+        public Location(string name, List<string> sources, string destination)
         {
             this.name = name;
-            this.source = source;
+            this.sources = sources;
             this.destination = destination;
         }
 
@@ -23,47 +24,52 @@ namespace ConsoleBackupper
 
         public void Backup()
         {
-            Dictionary<string, string> targets = new Dictionary<string, string>();
+            Dictionary<string, string> instructions = new Dictionary<string, string>();
 
-            if (File.Exists(source))
+            sources.ForEach(Register);
+
+            foreach (KeyValuePair<string, string> instruction in instructions)
             {
-                string fileName = GetFileName(source);
-
-                targets.Add(source, destination + fileName);
-            }
-            else if (Directory.Exists(source))
-            {
-                List<string> directories = new List<string> { source };
-                directories.AddRange(Directory.GetDirectories(source));
-
-                foreach (string directory in directories)
-                {
-                    string[] files = Directory.GetFiles(directory);
-
-                    foreach (string file in files)
-                    {
-                        string relativePath = GetRelativePath(file, source);
-                        string targetPath = destination + relativePath;
-
-                        targets.Add(file, targetPath);
-                    }
-                }
-            }
-            else
-            {
-                Logger.LogError($"Could not perform backup because '{source}' doesn't exist");
-
-                return;
-            }
-
-            Logger.Log($"Copied '{source}' into '{destination}'");
-
-            foreach (KeyValuePair<string, string> target in targets)
-            {
-                string directory = GetDirectory(target.Value);
+                string directory = GetDirectory(instruction.Value);
                 Directory.CreateDirectory(directory);
 
-                File.Copy(target.Key, target.Value, true);
+                File.Copy(instruction.Key, instruction.Value, true);
+            }
+
+            void Register(string source)
+            {
+                if (File.Exists(source))
+                {
+                    string fileName = GetFileName(source);
+
+                    instructions.Add(source, destination + fileName);
+                }
+                else if (Directory.Exists(source))
+                {
+                    List<string> directories = new List<string> { source };
+                    directories.AddRange(Directory.GetDirectories(source));
+
+                    foreach (string directory in directories)
+                    {
+                        string[] files = Directory.GetFiles(directory);
+
+                        foreach (string file in files)
+                        {
+                            string relativePath = GetRelativePath(file, source);
+                            string targetPath = destination + relativePath;
+
+                            instructions.Add(file, targetPath);
+                        }
+                    }
+                }
+                else
+                {
+                    Logger.LogError($"Could not perform backup because '{source}' doesn't exist");
+
+                    return;
+                }
+
+                Logger.Log($"Copied '{source}' into '{destination}'");
             }
 
             string GetFileName(string path) => path.Substring(path.LastIndexOf('\\'));
@@ -81,26 +87,30 @@ namespace ConsoleBackupper
 
         public static implicit operator string(Location backup) => backup.ToString();
 
-        public override string ToString() => name + nameSeparator + source + sourceSeparator + destination;
+        public override string ToString() => name + nameSeparator + string.Join(sourcesSeparator, sources) + destinationSeparator + destination;
 
         public static Location Parse(string line)
         {
-            GetSeparatorIndex(nameSeparator, out int nameSeparatorIndex);
-            GetSeparatorIndex(sourceSeparator, out int sourceSeparatorIndex);
+            string name = ReadNext(nameSeparator);
+            List<string> sources = ReadNext(destinationSeparator).Split(destinationSeparator);
+            string destination = line;
 
-            if (nameSeparatorIndex == -1 || sourceSeparatorIndex == -1) return null;
+            return new Location(name, sources, destination);
 
-            string name = line.Remove(nameSeparatorIndex);
-            string source = line.Substring(nameSeparatorIndex, sourceSeparatorIndex - nameSeparatorIndex);
-            string destination = line.Substring(sourceSeparatorIndex);
-
-            return new Location(name, source, destination);
-
-            void GetSeparatorIndex(string separator, out int separatorIndex)
+            string ReadNext(string target)
             {
-                separatorIndex = line.IndexOf(separator);
+                int index = line.IndexOf(target);
 
-                line = line.Remove(separatorIndex, separator.Length);
+                if (index > -1)
+                {
+                    string value = line.Substring(0, index);
+
+                    line = line.Remove(0, index + target.Length);
+
+                    return value;
+                }
+
+                return line;
             }
         }
 
